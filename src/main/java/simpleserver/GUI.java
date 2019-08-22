@@ -7,7 +7,7 @@ public class GUI {
 
     private static final int WIDTH = 650;
     private static final int HEIGHT = 450;
-    private static final Font mainFont = new Font("Consolas", Font.PLAIN, 12);
+    private static final Font mainFont = new Font("Consolas", Font.PLAIN, 14);
 
     private JFrame frm;
     private JTextArea outputArea;

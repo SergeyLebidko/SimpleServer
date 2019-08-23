@@ -15,7 +15,7 @@ public class PortListener implements Runnable {
 
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT, 1)) {
             int threadNumber = 0;
             while (true) {
                 gui.println("Ожидаю подключение. Порт: " + PORT);

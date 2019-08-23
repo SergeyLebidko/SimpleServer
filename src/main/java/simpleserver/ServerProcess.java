@@ -28,17 +28,27 @@ public class ServerProcess implements Runnable {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            while (true) {
-                readBytes = in.read(buffer);
-                HttpRequest request = HttpParser.parse(buffer, readBytes);
+            //Получаем запрос
+            readBytes = in.read(buffer);
+            HttpRequest request = HttpParser.parse(buffer, readBytes);
+            gui.println(threadName + " получил запрос: " + request.toString());
 
-                gui.println(threadName + " получил: " + request.toString());
+            System.out.println(request.getParameterValue("Cookie"));
 
+            //Формируем ответ
+            HttpResponse response = new HttpResponse();
+            response.setVersion("HTTP/1.1");
+            response.setCode("200");
+            response.setPhrase("OK");
 
-            }
+            out.write(response.getBytes());
+            out.flush();
+
+            socket.close();
         } catch (Exception e) {
-            gui.println("При работе потока-сервера " + threadName + " возникла ошибка: " + e);
+            gui.println(threadName + " ошибка: " + e);
         }
+        gui.println(threadName + " завершён");
     }
 
 }

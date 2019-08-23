@@ -31,11 +31,11 @@ public class ServerProcess implements Runnable {
 
             while (true) {
                 readBytes = in.read(buffer);
-                requestString = new String(buffer, 0, readBytes);
+                HttpRequest request = HttpParser.parse(buffer, readBytes);
 
                 gui.println();
                 gui.println("Получен HTTP-запрос (поток-сервер: " + threadName + ")");
-                gui.println(requestString);
+                gui.println(request.toString());
             }
         } catch (Exception e) {
             gui.println("При работе потока-сервера " + threadName + " возникла ошибка: " + e);

@@ -1,4 +1,4 @@
-package simpleserver;
+package simpleserver.network;
 
 public class HttpResponse {
 

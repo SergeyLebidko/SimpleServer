@@ -1,4 +1,4 @@
-package simpleserver;
+package simpleserver.network;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

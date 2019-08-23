@@ -1,4 +1,6 @@
-package simpleserver;
+package simpleserver.network;
+
+import simpleserver.GUI;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,13 +18,11 @@ public class PortListener implements Runnable {
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(PORT, 1)) {
-            int threadNumber = 0;
             while (true) {
-                gui.println("Ожидаю подключение. Порт: " + PORT);
+                gui.println("Сервер запущен. Порт: " + PORT);
                 Socket socket = serverSocket.accept();
 
-                gui.println("Клиент подключен. Запускаю экземпляр потока-сервера");
-                Thread thread = new Thread(new ServerProcess(socket, gui), "Server-" + (threadNumber++));
+                Thread thread = new Thread(new ServerProcess(socket, gui));
                 thread.setDaemon(true);
                 thread.start();
             }

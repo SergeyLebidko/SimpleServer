@@ -1,4 +1,9 @@
-package simpleserver;
+package simpleserver.network;
+
+import simpleserver.GUI;
+import simpleserver.network.HttpParser;
+import simpleserver.network.HttpRequest;
+import simpleserver.network.HttpResponse;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,7 +24,6 @@ public class ServerProcess implements Runnable {
     @Override
     public void run() {
         threadName = Thread.currentThread().getName();
-        gui.println("Поток-сервер запущен. Имя потока: " + threadName);
 
         byte[] buffer = new byte[64 * 1024];
         int readBytes;
@@ -31,9 +35,7 @@ public class ServerProcess implements Runnable {
             //Получаем запрос
             readBytes = in.read(buffer);
             HttpRequest request = HttpParser.parse(buffer, readBytes);
-            gui.println(threadName + " получил запрос: " + request.toString());
-
-            System.out.println(request.getParameterValue("Cookie"));
+            gui.println("Запрошено: /" + request.getUrl());
 
             //Формируем ответ
             HttpResponse response = new HttpResponse();
@@ -46,9 +48,8 @@ public class ServerProcess implements Runnable {
 
             socket.close();
         } catch (Exception e) {
-            gui.println(threadName + " ошибка: " + e);
+            gui.println("Ошибка: " + e);
         }
-        gui.println(threadName + " завершён");
     }
 
 }

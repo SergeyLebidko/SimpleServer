@@ -23,7 +23,6 @@ public class ServerProcess implements Runnable {
 
         byte[] buffer = new byte[64 * 1024];
         int readBytes;
-        String requestString;
 
         try {
             InputStream in = socket.getInputStream();
@@ -33,9 +32,9 @@ public class ServerProcess implements Runnable {
                 readBytes = in.read(buffer);
                 HttpRequest request = HttpParser.parse(buffer, readBytes);
 
-                gui.println();
-                gui.println("Получен HTTP-запрос (поток-сервер: " + threadName + ")");
-                gui.println(request.toString());
+                gui.println(threadName + " получил: " + request.toString());
+
+
             }
         } catch (Exception e) {
             gui.println("При работе потока-сервера " + threadName + " возникла ошибка: " + e);

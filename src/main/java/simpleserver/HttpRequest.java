@@ -34,12 +34,12 @@ public class HttpRequest {
     }
 
     public String getParameterValue(String parameterName) {
-        return parameters.get(parameterName.toLowerCase());
+        return parameters.get(parameterName);
     }
 
     @Override
     public String toString() {
-        return "HttpRequest{}";
+        return method + " /" + url + " " + version;
     }
 
 }

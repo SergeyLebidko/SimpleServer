@@ -1,9 +1,6 @@
 package simpleserver.network;
 
 import simpleserver.GUI;
-import simpleserver.network.HttpParser;
-import simpleserver.network.HttpRequest;
-import simpleserver.network.HttpResponse;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,24 +29,48 @@ public class ServerProcess implements Runnable {
             InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            //Получаем запрос
+            //Ожидаем данные от клиента
             readBytes = in.read(buffer);
-            HttpRequest request = HttpParser.parse(buffer, readBytes);
-            gui.println("Запрошено: /" + request.getUrl());
 
             //Формируем ответ
-            HttpResponse response = new HttpResponse();
-            response.setVersion("HTTP/1.1");
-            response.setCode("200");
-            response.setPhrase("OK");
+            byte[] response;
+            if (readBytes != (-1)) {
+                String url = getUrl(buffer, readBytes);
+                gui.println("Запрошено: /" + url);
+                response = createResponse("");
+            } else {
+                response = createResponse("");
+            }
 
-            out.write(response.getBytes());
+            out.write(response);
             out.flush();
 
             socket.close();
         } catch (Exception e) {
+            e.printStackTrace();
             gui.println("Ошибка: " + e);
         }
+    }
+
+    private String getUrl(byte[] buffer, int size) {
+        String request = new String(buffer, 0, size);
+        int pos = request.indexOf('\r');
+        String firstLine = request.substring(0, pos);
+        String url = firstLine.split(" ")[1].substring(1);
+        return url;
+    }
+
+    private byte[] createResponse(String content) {
+        String headerString = "HTTP/1.1 200 OK\r\n";
+        headerString += "Server: SimpleServer\r\n";
+        headerString += "Content-Type: text/html; charset=utf-8\r\n";
+        headerString += "Connection: close\r\n";
+        headerString += "Content-Length: " + content.length() + "\r\n\r\n";
+
+        byte[] header = headerString.getBytes();
+        byte[] response = new byte[header.length + content.length()];
+
+        return response;
     }
 
 }

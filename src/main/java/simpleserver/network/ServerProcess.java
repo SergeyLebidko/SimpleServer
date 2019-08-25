@@ -1,6 +1,7 @@
 package simpleserver.network;
 
 import simpleserver.GUI;
+import simpleserver.explorer.ContentGenerator;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,17 +12,16 @@ public class ServerProcess implements Runnable {
     private GUI gui;
 
     private Socket socket;
-    private String threadName;
+    private ContentGenerator contentGenerator;
 
-    public ServerProcess(Socket socket, GUI gui) {
+    public ServerProcess(Socket socket, GUI gui, ContentGenerator contentGenerator) {
         this.socket = socket;
         this.gui = gui;
+        this.contentGenerator = contentGenerator;
     }
 
     @Override
     public void run() {
-        threadName = Thread.currentThread().getName();
-
         byte[] buffer = new byte[64 * 1024];
         int readBytes;
 
@@ -35,9 +35,11 @@ public class ServerProcess implements Runnable {
             //Формируем ответ
             byte[] response;
             if (readBytes != (-1)) {
-                String url = getUrl(buffer, readBytes);
-                gui.println("Запрошено: /" + url);
-                response = createResponse("");
+                synchronized (contentGenerator) {
+                    String url = getUrl(buffer, readBytes);
+                    gui.println("Запрошено: /" + url);
+                    response = createResponse(contentGenerator.getContent(url));
+                }
             } else {
                 response = createResponse("");
             }
@@ -47,7 +49,6 @@ public class ServerProcess implements Runnable {
 
             socket.close();
         } catch (Exception e) {
-            e.printStackTrace();
             gui.println("Ошибка: " + e);
         }
     }
@@ -61,14 +62,24 @@ public class ServerProcess implements Runnable {
     }
 
     private byte[] createResponse(String content) {
+        byte[] contentBytes = content.getBytes();
+
         String headerString = "HTTP/1.1 200 OK\r\n";
         headerString += "Server: SimpleServer\r\n";
         headerString += "Content-Type: text/html; charset=utf-8\r\n";
         headerString += "Connection: close\r\n";
-        headerString += "Content-Length: " + content.length() + "\r\n\r\n";
+        headerString += "Content-Length: " + contentBytes.length + "\r\n\r\n";
 
-        byte[] header = headerString.getBytes();
-        byte[] response = new byte[header.length + content.length()];
+        byte[] headerBytes = headerString.getBytes();
+        byte[] response = new byte[headerBytes.length + contentBytes.length];
+
+        int index = 0;
+        for (byte b : headerBytes) {
+            response[index++] = b;
+        }
+        for (byte b : contentBytes) {
+            response[index++] = b;
+        }
 
         return response;
     }

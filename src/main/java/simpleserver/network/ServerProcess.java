@@ -49,6 +49,7 @@ public class ServerProcess implements Runnable {
 
             socket.close();
         } catch (Exception e) {
+            e.printStackTrace();
             gui.println("Ошибка: " + e);
         }
     }

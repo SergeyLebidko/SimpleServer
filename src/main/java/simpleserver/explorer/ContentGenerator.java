@@ -36,7 +36,7 @@ public class ContentGenerator {
         indexPage += "<table>";
 
         for (File disk : getDisks()) {
-            indexPage += "<tr><td>" + createLink(disk) + "</td></tr>";
+            indexPage += "<tr><td>" + createLink(disk, null) + "</td></tr>";
         }
         indexPage += "</table>";
 
@@ -50,7 +50,20 @@ public class ContentGenerator {
                 "<head><title>Simple Server</title></head>" +
                 "<body>";
 
-        //Проверяем первй особый случай - нельзя получить доступ к содержимому папки
+        //Добавляем на страницу текущий путь
+        listPage += "<h3>" + (folder.getAbsolutePath()) + "</h3><p>";
+
+        //Добавляем ссылку на главную страницу
+        listPage += "<a href=\"index\">Главная страница</a><br>";
+
+        //Добавляем ссылку на каталог верхнего уровня
+        if (folder.getParentFile() != null) {
+            listPage += createLink(folder.getParentFile(), "Вверх");
+        }
+
+        listPage += "</p><p></p>";
+
+        //Проверяем первый особый случай - нельзя получить доступ к содержимому папки
         File[] fileList = getFileList(folder);
         if (fileList == null) {
             listPage += "<p>Невозможно получить доступ к содержимому папки</p>";
@@ -58,21 +71,21 @@ public class ContentGenerator {
             return listPage;
         }
 
-        //Второй вариант - папка пуста
+        //Проверяем второй особый случай - папка пуста
         if (fileList.length == 0) {
             listPage += "<p>Папка пуста</p>";
             listPage += "</body></html>";
             return listPage;
         }
 
-        //Проверяем второй особый случай - папка не пуста и доступ к ней возможен
+        //Папка не пуста и доступ к ней возможен
         listPage += "<table>";
         for (File element : getFileList(folder)) {
             if (element.isFile()) {
                 listPage += "<tr><td>" + element.getName() + "</td></tr>";
             }
             if (element.isDirectory()) {
-                listPage += "<tr><td>" + createLink(element) + "</td></tr>";
+                listPage += "<tr><td>" + createLink(element, null) + "</td></tr>";
             }
         }
         listPage += "</table>";
@@ -92,11 +105,11 @@ public class ContentGenerator {
         return notFoundPage;
     }
 
-    private String createLink(File file) {
+    private String createLink(File file, String text) {
         String ref = "" + (linkIndex++);
         String name = file.getName();
         if (name.equals("")) name = file.getAbsolutePath();
-        String link = "<a href=\"" + ref + "\">" + name + "</a";
+        String link = "<a href=\"" + ref + "\">" + (text == null ? name : text) + "</a>";
         links.put(ref, file);
         return link;
     }

@@ -41,22 +41,4 @@ public class GUI {
         });
     }
 
-    public void println() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                outputArea.append("\n");
-            }
-        });
-    }
-
-    public void print(String text) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                outputArea.append(text);
-            }
-        });
-    }
-
 }

@@ -38,10 +38,14 @@ public class ServerProcess implements Runnable {
                 synchronized (contentGenerator) {
                     String url = getUrl(buffer, readBytes);
                     gui.println("Запрошено: /" + url);
-                    response = createResponse(contentGenerator.getContent(url));
+                    if (url.equals("favicon.ico")) {
+                        response = createImageResponse(contentGenerator.getImageContent(url));
+                    } else {
+                        response = createHtmlResponse(contentGenerator.getHtmlContent(url));
+                    }
                 }
             } else {
-                response = createResponse("");
+                response = createHtmlResponse("");
             }
 
             out.write(response);
@@ -62,7 +66,7 @@ public class ServerProcess implements Runnable {
         return url;
     }
 
-    private byte[] createResponse(String content) {
+    private byte[] createHtmlResponse(String content) {
         byte[] contentBytes = content.getBytes();
 
         String headerString = "HTTP/1.1 200 OK\r\n";
@@ -79,6 +83,27 @@ public class ServerProcess implements Runnable {
             response[index++] = b;
         }
         for (byte b : contentBytes) {
+            response[index++] = b;
+        }
+
+        return response;
+    }
+
+    private byte[] createImageResponse(byte[] content) {
+        String headerString = "HTTP/1.1 200 OK\r\n";
+        headerString += "Server: SimpleServer\r\n";
+        headerString += "Content-Type: text/ico\r\n";
+        headerString += "Connection: close\r\n";
+        headerString += "Content-Length: " + content.length + "\r\n\r\n";
+
+        byte[] headerBytes = headerString.getBytes();
+        byte[] response = new byte[headerBytes.length + content.length];
+
+        int index = 0;
+        for (byte b : headerBytes) {
+            response[index++] = b;
+        }
+        for (byte b : content) {
             response[index++] = b;
         }
 

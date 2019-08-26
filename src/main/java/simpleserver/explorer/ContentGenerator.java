@@ -1,6 +1,8 @@
 package simpleserver.explorer;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +16,27 @@ public class ContentGenerator {
         linkIndex = 0;
     }
 
-    public String getContent(String url) {
+    public byte[] getImageContent(String url) {
+        byte[] result = new byte[0];
+
+        if (url.equals("favicon.ico")) {
+            byte[] fav = new byte[64 * 1024];
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream favStream = classLoader.getResourceAsStream("images/favicon.ico");
+            try {
+                int readBytes = favStream.read(fav);
+                result = new byte[readBytes];
+                for (int i = 0; i < readBytes; i++) {
+                    result[i] = fav[i];
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        return result;
+    }
+
+    public String getHtmlContent(String url) {
         String content;
 
         if (url.equals("") | url.equals("index")) {
